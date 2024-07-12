@@ -1,31 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
-#include "RBT.h"
-#define N 10        //number of elements
-#define LIMIT 51    //limit for rand()
+#include "rbtree.h"
+#define N 10
+#define LIMIT 51
 
 int main()
 {
-    srand(time(0)); //seed for rand()
-    rblink root = NULL;
-    for (int i=0; i<N; i++) {  //insert N random items 
-        int x =  rand()%LIMIT;
-        InsertKey(&root, x);
+    srand(time(0));
+    struct rbtree *root = rbtree_create();
+    for (int i = 0; i < N; i++) {
+        int x =  rand() % LIMIT;
+        rbtree_insert(root, x);
+        printf("Inserting item \"%d\"...\n", x);
     }
 
-    //printing the elements of the tree in ascending order 
     printf("\nPrinting items in ascending order...\n");
-    PrintElements(root);
+    rbtree_print_elements(root);
     printf("\n");
 
-    //searching for a random item in the tree
-    int x = rand()%LIMIT;                                  
-    printf("\nsearching for item \"%d\"... ", x);         
-    rblink s = Search(root, x);
+    int x = rand() % LIMIT;
+    printf("Searching for item \"%d\"... ", x);
+    struct rbnode *s = rbtree_search(root, x);
     if (s)
-        printf("item %d is in the tree\n", Data(s));
-    else printf("item %d not found\n", x);
+        printf("Item %d is in the tree\n", s->key);
+    else 
+        printf("Item %d not found\n", x);
 
     return 0;
 }

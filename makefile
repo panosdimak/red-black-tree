@@ -1,18 +1,12 @@
 CC = gcc
-TARGET = demo
-FLAGS = -02 
+CFLAGS = -O2 -Wall
 
-all: demo.o RedBlackTree.o
-	$(CC) -o $(TARGET) $^
+DEMO_SRC = ./demo.c ./rbtree.c
+
+all: demo
+
+demo: $(DEMO_SRC)
+	$(CC) $(CFLAGS) -o demo $(DEMO_SRC) 
 
 clean:
-	rm -f *.o
-	rm -f $(TARGET)
-
-demo.o: demo.c RBT.h
-	$(CC) $(CFLAGS) -c demo.c -o demo.o
-
-
-RedBlackTree.o: RedBlackTree.c RBT.h
-	$(CC) $(CFLAGS) -c RedBlackTree.c -o RedBlackTree.o
-
+	rm -f demo
