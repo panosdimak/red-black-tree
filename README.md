@@ -1,8 +1,22 @@
-# Question3
-Παναγιώτης Δημακάκος sdi2000268  
-  
-Έχω κάνει το πρόγραμμα έτσι ώστε η λειτουργία της συνάρτησης Initialize να καλύπτεται από την InsertKey. Δεν έχω υλοποιήσει την remove.  
-Στην main (demo.c) καλείται η InsertKey Ν φορές, όπου Ν είναι μια συμβολική σταθερά και άρα εισάγονται Ν στοιχεία στο δέντρο (μπορείτε να αλλάξετε την τιμή της για εισάγετε περισσότερα στοιχεία).  
-Τα στοιχεία που εισάγονται είναι ψευδοτυχαίοι αριθμοί από 0 εώς LIMIT-1 (η LIMIT είναι σταθερά για να οριοθετηθεί η rand).   
-Η search κάνει αναζήτηση επίσης για έναν ψευδοτυχαίο αριθμό με ίδια όρια μέσα στο δέντρο. Στις περισσότερες εκτελέσεις όπως είναι φυσικό δεν θα είναι ο αριθμός στο δέντρο, όμως μετά από κάποιες εκτελέσεις θα γίνει αναζήτηση και για κάποιον που είναι στο δέντρο.  
-Μπορείτε να κάνετε compile με make.
+# red-black-tree
+
+A simple red black tree implementation in C.  
+
+Originally written as a university assignment, refactored into a cleaner and more reusable library.
+
+## Features
+
+- Insert and search operations
+- Basic print function (in-order traversal with node colors)
+- Demo program showcasing usage
+
+## Build and Run
+
+`make` to build the demo program.  
+`./demo` to run it.
+
+## Notes
+
+- Uses a nil sentinel node internally.
+- Duplicate keys are currently allowed.
+- remove() to be implemented
