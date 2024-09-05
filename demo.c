@@ -28,5 +28,6 @@ int main()
     else 
         printf("Item %d not found\n", x);
 
+    rbtree_destroy(root);
     return 0;
 }
