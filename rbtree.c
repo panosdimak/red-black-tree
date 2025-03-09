@@ -60,46 +60,46 @@ static void stack_destroy(struct node_stack *s) {
 
 /* --- Tree Rotations --- */
 
-/* Rotate left around node p */
-static void rbtree_left_rotate(struct rbtree *tree, struct rbnode *p) {
-    struct rbnode *c = p->right;
-    p->right = c->left;
+/* Rotate left around node */
+static void rbtree_left_rotate(struct rbtree *tree, struct rbnode *node) {
+    struct rbnode *pivot = node->right;
+    node->right = pivot->left;
 
-    if (c->left != tree->nil)
-        c->left->parent = p;
+    if (pivot->left != tree->nil)
+        pivot->left->parent = node;
 
-    c->parent = p->parent;
+    pivot->parent = node->parent;
 
-    if (p->parent == tree->nil)
-        tree->root = c;
-    else if (p == p->parent->left)
-        p->parent->left = c;
+    if (node->parent == tree->nil)
+        tree->root = pivot;
+    else if (node == node->parent->left)
+        node->parent->left = pivot;
     else
-        p->parent->right = c;
+        node->parent->right = pivot;
 
-    c->left = p;
-    p->parent = c;
+    pivot->left = node;
+    node->parent = pivot;
 }
 
-/* Rotate right around node p */
-static void rbtree_right_rotate(struct rbtree *tree, struct rbnode *p) {
-    struct rbnode *c = p->left;
-    p->left = c->right;
+/* Rotate right around node */
+static void rbtree_right_rotate(struct rbtree *tree, struct rbnode *node) {
+    struct rbnode *pivot = node->left;
+    node->left = pivot->right;
 
-    if (c->right != tree->nil)
-        c->right->parent = p;
+    if (pivot->right != tree->nil)
+        pivot->right->parent = node;
 
-    c->parent = p->parent;
+    pivot->parent = node->parent;
 
-    if (p->parent == tree->nil)
-        tree->root = c;
-    else if (p == p->parent->right)
-        p->parent->right = c;
+    if (node->parent == tree->nil)
+        tree->root = pivot;
+    else if (node == node->parent->right)
+        node->parent->right = pivot;
     else
-        p->parent->left = c;
+        node->parent->left = pivot;
 
-    c->right = p;
-    p->parent = c;
+    pivot->right = node;
+    node->parent = pivot;
 }
 
 /* --- Balancing operations --- */
@@ -143,6 +143,87 @@ static void rbtree_balance_after_insert(struct rbtree *tree, struct rbnode *new_
     tree->root->color = RB_BLACK;
 }
 
+static void rbtree_balance_after_delete(struct rbtree *tree, struct rbnode *node) {
+    while (node != tree->root && node->color == RB_BLACK) {
+        if (node == node->parent->left) {
+            struct rbnode *sibling_node = node->parent->right;
+            
+            if (sibling_node == tree->nil) {
+                node = node->parent;
+                continue;
+            }
+            
+            if (sibling_node->color == RB_RED) {
+                /* Case 1 */
+                sibling_node->color = RB_BLACK;
+                node->parent->color = RB_RED;
+                rbtree_left_rotate(tree, node->parent);
+                sibling_node = node->parent->right;
+            } 
+            
+            if (sibling_node->left->color == RB_BLACK && 
+                sibling_node->right->color ==  RB_BLACK) {
+                /* Case 2 */
+                sibling_node->color = RB_RED;
+                node = node->parent;
+            } else {
+                if (sibling_node->right->color == RB_BLACK) {
+                    /* Case 3 */
+                    sibling_node->left->color = RB_BLACK;
+                    sibling_node->color = RB_RED;
+                    rbtree_right_rotate(tree, sibling_node);
+                    sibling_node = node->parent->right;
+                }
+
+                /* Case 4 */
+                sibling_node->color = node->parent->color;
+                node->parent->color = RB_BLACK;
+                sibling_node->right->color = RB_BLACK;
+                rbtree_left_rotate(tree, node->parent);
+                node = tree->root;
+            }
+        } else {
+            struct rbnode *sibling_node = node->parent->left;
+
+            if (sibling_node == tree->nil) {
+                node = node->parent;
+                continue;
+            }
+
+            /* Case 1 */
+            if (sibling_node->color == RB_RED) {
+                sibling_node->color = RB_BLACK;
+                node->parent->color = RB_RED;
+                rbtree_right_rotate(tree, node->parent);
+                sibling_node = node->parent->left;
+            }
+
+            if (sibling_node->right->color == RB_BLACK && 
+                sibling_node->left->color == RB_BLACK) {
+                /* Case 2 */
+                sibling_node->color = RB_RED;
+                node = node->parent;
+            } else {
+                if (sibling_node->left->color == RB_BLACK) {
+                    /* Case 3 */
+                    sibling_node->right->color = RB_BLACK;
+                    sibling_node->color = RB_RED;
+                    rbtree_left_rotate(tree, sibling_node);
+                    sibling_node = node->parent->left;
+                }
+
+                /* Case 4 */
+                sibling_node->color = node->parent->color;
+                node->parent->color = RB_BLACK;
+                sibling_node->left->color = RB_BLACK;
+                rbtree_right_rotate(tree, node->parent);
+                node = tree->root;
+            }
+        }
+    }
+    node->color = RB_BLACK;
+}
+
 /* --- Tree Traversal Helpers --- */
 static void rbtree_print_inorder(const struct rbtree *tree, const struct rbnode *node) {
     if (node == tree->nil)
@@ -173,53 +254,53 @@ struct rbtree *rbtree_create(void) {
     return tree;
 }
 
-static void rbtree_free_nodes (struct rbtree *tree, struct rbnode *root) {
+static void rbtree_free_nodes(struct rbtree *tree, struct rbnode *root) {
     if (root == tree->nil)
         return;
 
-    struct node_stack *A = stack_create(64);
-    struct node_stack *B = stack_create(64);
-    if (!A || !B) {
-        stack_destroy(A);
-        stack_destroy(B);
+    struct node_stack *stack_a = stack_create(64);
+    struct node_stack *stack_b = stack_create(64);
+    if (!stack_a || !stack_b) {
+        stack_destroy(stack_a);
+        stack_destroy(stack_b);
         return;
     }
 
-    if (!stack_push(A, root)) {
-        if (A) stack_destroy(A);
-        if (B) stack_destroy(B);
+    if (!stack_push(stack_a, root)) {
+        if (stack_a) stack_destroy(stack_a);
+        if (stack_b) stack_destroy(stack_b);
         return;
     }
 
-    while (!stack_empty(A)) {
-        struct rbnode *node = stack_pop(A);
-        if (!stack_push(B, node)) { 
-            if (A) stack_destroy(A);
-            if (B) stack_destroy(B);
+    while (!stack_empty(stack_a)) {
+        struct rbnode *node = stack_pop(stack_a);
+        if (!stack_push(stack_b, node)) { 
+            if (stack_a) stack_destroy(stack_a);
+            if (stack_b) stack_destroy(stack_b);
             return;
         }
 
         if (node->left != tree->nil)
-            if (!stack_push(A, node->left)) {
-                if (A) stack_destroy(A);
-                if (B) stack_destroy(B);
+            if (!stack_push(stack_a, node->left)) {
+                if (stack_a) stack_destroy(stack_a);
+                if (stack_b) stack_destroy(stack_b);
                 return;
             }
         if (node->right != tree->nil)
-            if (!stack_push(A, node->right)) {
-                if (A) stack_destroy(A);
-                if (B) stack_destroy(B);
+            if (!stack_push(stack_a, node->right)) {
+                if (stack_a) stack_destroy(stack_a);
+                if (stack_b) stack_destroy(stack_b);
                 return;
             }
     }
 
-    while (!stack_empty(B)) {
-        struct rbnode *node = stack_pop(B);
+    while (!stack_empty(stack_b)) {
+        struct rbnode *node = stack_pop(stack_b);
         free(node);
     }
 
-    stack_destroy(A);
-    stack_destroy(B);
+    stack_destroy(stack_a);
+    stack_destroy(stack_b);
 }
 
 void rbtree_destroy(struct rbtree *tree) {
@@ -279,9 +360,65 @@ struct rbnode *rbtree_search(const struct rbtree *tree, int key) {
     return NULL;
 }
 
-/* TODO: implement rbtree_remove()*/
-bool rbtree_remove(struct rbtree *tree, int key) {
-    return false;
+static struct rbnode *rbtree_minimum(const struct rbtree *tree, struct rbnode *node) {
+    while (node->left != tree->nil)
+        node = node->left;
+    return node;
+}
+
+static void rbtree_transplant(struct rbtree *tree, struct rbnode *target, struct rbnode *child) {
+    if (target->parent == tree->nil) 
+        tree->root = child;
+    else if (target == target->parent->left) 
+        target->parent->left = child;
+    else 
+        target->parent->right = child;
+        
+    child->parent = target->parent;
+}
+
+bool rbtree_delete(struct rbtree *tree, int key) {
+    struct rbnode *node = rbtree_search(tree, key);
+    if (node == NULL) 
+        return false;
+
+    struct rbnode *replacement_node = node;
+    enum rb_color replacement_original_color = replacement_node->color;
+    struct rbnode *fixup_node;
+
+    if (node->left == tree->nil) {
+        fixup_node = node->right;
+        rbtree_transplant(tree, node, node->right);
+    } else if (node->right == tree->nil) {
+        fixup_node = node->left;
+        rbtree_transplant(tree, node, node->left);
+    } else {
+        replacement_node = rbtree_minimum(tree, node->right);
+        replacement_original_color = replacement_node->color;
+        fixup_node = replacement_node->right;
+
+        if (replacement_node->parent == node) {
+            fixup_node->parent = replacement_node;
+        } else {
+            rbtree_transplant(tree, replacement_node, replacement_node->right);
+            replacement_node->right = node->right;
+            if (replacement_node->right != tree->nil)
+                replacement_node->right->parent = replacement_node;            
+        }
+
+        rbtree_transplant(tree, node, replacement_node);
+        replacement_node->left = node->left;
+        if (replacement_node->left != tree->nil)
+            replacement_node->left->parent = replacement_node;
+        replacement_node->color = node->color;
+    }
+
+    free(node);
+
+    if (replacement_original_color == RB_BLACK)
+        rbtree_balance_after_delete(tree, fixup_node);
+
+    return true;
 }
 
 void rbtree_print_elements(const struct rbtree *tree) {

@@ -25,7 +25,7 @@ void rbtree_destroy(struct rbtree *tree);
 
 bool rbtree_insert(struct rbtree *tree, int key);
 struct rbnode *rbtree_search(const struct rbtree *tree, int key);
-bool rbtree_remove(struct rbtree *tree, int key);
+bool rbtree_delete(struct rbtree *tree, int key);
 void rbtree_print_elements(const struct rbtree *tree);
 
-#endif /* _RBTREE_H */
+#endif /* RBTREE_H */
