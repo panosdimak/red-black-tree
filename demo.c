@@ -3,31 +3,48 @@
 #include <stdbool.h>
 #include <time.h>
 #include "rbtree.h"
-#define N 10
-#define LIMIT 51
 
-int main()
-{
-    srand(time(0));
-    struct rbtree *root = rbtree_create();
-    for (int i = 0; i < N; i++) {
-        int x =  rand() % LIMIT;
-        rbtree_insert(root, x);
-        printf("Inserting item \"%d\"...\n", x);
+int main(void) {
+    struct rbtree *tree = rbtree_create();
+    if (!tree) {
+        fprintf(stderr, "Error: failed to initialize tree.\n");
+        exit(1);
     }
 
-    printf("\nPrinting items in ascending order...\n");
-    rbtree_print_elements(root);
-    printf("\n");
+    int values[] = {20, 15, 30, 10, 18, 25, 40, 22};
+    size_t n = sizeof(values)/sizeof(values[0]);
+    
+    printf("=== Inserting elements ===\n");
+    for (size_t i = 0; i < n; i++) {
+        printf("Insert %d\n", values[i]);
+        rbtree_insert(tree, values[i]);
+    }
 
-    int x = rand() % LIMIT;
-    printf("Searching for item \"%d\"... ", x);
-    struct rbnode *s = rbtree_search(root, x);
-    if (s)
-        printf("Item %d is in the tree\n", s->key);
-    else 
-        printf("Item %d not found\n", x);
+    printf("\nTree after insertions:\n");
+    rbtree_print_elements(tree);
 
-    rbtree_destroy(root);
+    printf("\n=== Searching ===\n");
+    int search_keys[] = {18, 99};
+    for (size_t i = 0; i < 2; i++) {
+        struct rbnode *res = rbtree_search(tree, search_keys[i]);
+        if (res)
+            printf("Found key %d (color: %s)\n", res->key, res->color == RB_BLACK ? "BLACK" : "RED");
+        else
+            printf("Key %d not found\n", values[i]);
+    }
+
+    printf("\n=== Deleting elements ===\n");
+    int delete_keys[] = {10, 15, 20, 25};
+    size_t m = sizeof(delete_keys)/sizeof(delete_keys[0]);
+    for (size_t i = 0; i < m; i++) {
+        printf("Delete %d\n", delete_keys[i]);
+        rbtree_delete(tree, delete_keys[i]);
+        rbtree_print_elements(tree);
+    }
+
+    printf("\nFinal tree:\n");
+    rbtree_print_elements(tree);
+
+    rbtree_destroy(tree);
     return 0;
 }
