@@ -1,22 +1,24 @@
 # red-black-tree
 
-A simple red black tree implementation in C.  
+A self-balancing **red-black tree** implementation in C.  
 
-Originally written as a university assignment, refactored into a cleaner and more reusable library.
+Originally written as a university assignment, refactored into a reusable and well-structured library.
 
 ## Features
 
-- Insert and search operations
-- Basic print function (in-order traversal with node colors)
-- Demo program showcasing usage
+- Insert, search and delete operations with automatic rebalancing
+- In-order print with node colors (`R`/`B`)
+- Iterative node cleanup to avoid recursion depth limits
+- Uses a nil sentinel node internally for clear and consistent tree logic
+- Clean API suitable for integration into other C projects
 
 ## Build and Run
 
-`make` to build the demo program.  
-`./demo` to run it.
+```bash
+make        # build demo
+./demo      # run example
+```
 
 ## Notes
 
-- Uses a nil sentinel node internally.
-- Duplicate keys are currently allowed.
-- remove() to be implemented
+- Duplicate keys are allowed.
